@@ -1,0 +1,11 @@
+#这里是版本1.0.0.4.15
+  ##内部已经包含的封装函数有：
+     ###Array.prototype.unique()
+     ###Document.protptype.getByClassName()
+     ###Element.prototype.insertAfter()
+     ###addEvent()
+     ###debounce()
+     ###deepClone()
+     ###disturb()
+     ###throttle()
+     ###type()
