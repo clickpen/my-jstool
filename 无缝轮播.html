@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>动一动</title>
+	<link rel="stylesheet" href="bo.css">
+</head>
+<body>
+	<div class="wrapper"></div>
+	<script src="prototype.js"></script>
+	<script>
+		var json = {
+			'1': 'imglunbo/1.jpg',
+			'2': 'imglunbo/2.jpg',
+			'3': 'imglunbo/3.jpg',
+			'4': 'imglunbo/4.jpg',
+			'5': 'imglunbo/5.jpg',
+			'6': 'imglunbo/6.jpg',
+			'7': 'imglunbo/7.jpg'
+		}
+		document.getElementsByClassName('wrapper')[0].createTurnpage(json);
+	</script>
+</body>
+</html>
