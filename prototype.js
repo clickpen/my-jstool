@@ -12,6 +12,7 @@ Element.prototype.createTurnpage = function(json) {
 	str2 += "</ul>";
 	this.innerHTML = str1 + str2;
 	var ul = this.getElementsByClassName('imgUl')[0];
+	console.log(ul.offsetLeft);
 	var btnL = this.getElementsByClassName('btnL')[0];
 	var btnR = this.getElementsByClassName('btnR')[0];
 	var navUl = this.getElementsByClassName('navUl')[0];
@@ -19,7 +20,13 @@ Element.prototype.createTurnpage = function(json) {
 	var botime = null;
 	var lock = true;
 	var index = 0;
-	var len = json.toSource().split(",").length;
+	var len = (function(json) {
+		var count = 0;
+		for(var prop in json) {
+			count++;
+		}
+		return count;
+		})(json)
 	var ulmove = {
 		'left': 0
 	};
