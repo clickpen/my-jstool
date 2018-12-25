@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<div></div>
+	<textarea id="redText" cols="30" rows="10" placeholder="请输入你需要阅读的文字"></textarea>
+	<button>开始阅读</button>
+	<!-- <audio id="tts_autio_id" autoplay="autoplay">
+	<source id="tts_source_id" src="http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=9&text=语音测试中" type="audio/mpeg">
+	<embed id="tts_embed_id" height="0" width="0" src="">
+	</audio> -->
+	<!-- http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text=语音测试1234 -->
+	<script src="./jquery-3.1.1.js"></script>
+	<script>
+		// let config = {
+		// 	speed: 5,
+		// 	per: 4,
+		// 	pit: 5,
+		// 	vol: 5
+		// }
+		// let speed;
+		// function createAudio(src) {
+		// 	let oAudio = document.createElement('audio');
+		// 	$('div').eq(0).append(oAudio);
+		// }
+		// createAudio();
+		let read = {
+			config: {
+				// 语速，取值0-9，默认为5中语速
+				spd: 5,
+				// 发音人选择, 0女声，1男声，3度逍遥，4度丫丫
+				per: 4,
+				// 音调，取值0-9，默认为5中语调
+				pit: 5,
+				// 音量，取值0-15，默认为5中音量
+				vol: 5
+			},
+			oAudio: null,
+			url: null,
+			redText: undefined,
+			init() {
+				let that = this;
+				that.oAudio = document.createElement('audio');
+				$('button').eq(0).on('click', function() {
+					that.redText = $('#redText').val();
+					that.redText = that.redText ? that.redText : "请输入你需要阅读的文字";
+					that.url = `https://ai.baidu.com/aidemo?type=tns2&idx=1&tex=${that.redText}&cuid=baidu_speech_demo&cod=3&lan=zh&ctp=2&pdt=2&spd=${that.config.spd}&per=${that.config.per}&vol=${that.config.vol}&pit=${that.config.pit}`;
+					// url = 'http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=' + that.spd + '&text=' + that.redText;
+					that.oAudio.src = that.url;
+					that.play();
+					// 增加需求，在src加载完成之后才运行播放（暂时还未成功）
+					that.oAudio.onload = () => that.play();
+				});
+			},
+			play() {
+				this.oAudio.play();
+			}
+		}
+		read.init();
+		
+		// function max(num1 = 0, num2) {
+		// 	// 'use strict'
+		// 	// 在非'use strict'情况下arguments和形参保持一致
+		// 	// 当为严格模式的时候，arguments和形参不保持一致
+		// 	// 当为ES6时，与严格模式下相同
+		// 	console.log(num1, arguments[0]);
+		// 	num1 = 3;
+		// 	console.log(num1, arguments[0]);
+		// }
+		// max(1, 2);
+
+		// var items = [ 1, 2, 3, 4, 5, 6 ];
+		// var results = [];
+		// var running = 0;
+		// // limit用于调节当前同时进行异步执行的数量
+		// var limit = 3;
+
+		// function async(arg, callback) {
+		//   console.log('参数为 ' + arg +' , 1秒后返回结果');
+		//   setTimeout(function () { callback(arg * 2); }, 1000);
+		// }
+
+		// function final(value) {
+		//   console.log('完成: ', value);
+		// }
+
+		// function launcher() {
+		// 	while(running < limit && items.length > 0) {
+		// 		var item = items.shift();
+		// 		async(item, function(result) {
+		// 			results.push(result);
+		// 			running--;
+		// 			if(items.length > 0) {
+		// 				launcher();
+		// 			} else if(running == 0) {
+		// 				final(results);
+		// 			}
+		// 		});
+		// 		running++;
+		// 	}
+		// }
+
+		// launcher();
+
+		// let promise = new Promise(function(resolve, reject) {
+		// 	let number = 1;
+		// 	console.log("这里是异步打印的代码");
+		// 	if(number) {
+		// 		resolve(number);
+		// 	} else {
+		// 		reject(console.log(111));
+		// 	}
+		// }).then( () => console.log(123) )
+		// console.log("这里是主线程上的打印");
+
+		// Object.kerys()
+		// Object.values()
+		// Object.entries()
+
+		// let map = new Map();
+		// map.set(1, 2);
+		// let ob = {};
+		// console.log(map);
+		// Array.prototype.unique = function() {
+		// 	let templeObj = new Map();
+		// 	let resArr = [];
+		// 	this.forEach( (ele, indx, arr) => {
+		// 		if(!templeObj.has(ele)) {
+		// 			templeObj.set(ele, ele);
+		// 			resArr.push(ele);
+		// 		}
+		// 	})
+		// 	return resArr;
+		// }
+		// let arr = [1,2,3,3,2,ob,ob,[1],[2]]
+
+		// 判断两个数组是否有交集简易方法
+		// let arr = [1, 2, 3, 4];
+		// let aimarr = [5, 6, 7, 8];
+		// console.log(arr.some(ele => aimarr.indexOf(ele) != -1));
+
+		// hash算法
+		// function mmp() {
+		// 	this.init();
+		// }
+		// // 定义初始有8个桶
+		// mmp.prototype.len = 8;
+		// mmp.prototype.bucket = [];
+		// mmp.prototype.init = function() {
+		// 	for(let i = 0; i < this.len; i++) {
+		// 		// 初始化，让当前的桶地址都是null
+		// 		this.bucket[i] = {next: null};
+		// 	}
+		// }
+		// mmp.prototype.makeHash = function(key) {
+		// 	let hash = 0;
+		// 	if(typeof key == "string") {
+		// 		let len = (key.length > 3) ? key.length : 3;
+		// 		for(let i = len - 3;i < len; i++) {
+		// 			hash += (key[i] !== undefined) ? key[i].charCodeAt() : 0;
+		// 		}
+		// 	} else {
+		// 		// 处理如果不是字符串，则转换为数字类型
+		// 		hash = +key;
+		// 	}
+		// 	return hash;
+		// }
+		// mmp.prototype.set = function(key, value) {
+		// 	let hash = this.makeHash(key);
+		// 	// 将不同的hsah值的数据放到不同的桶里
+		// 	let list = this.bucket[hash % this.len];
+		// 	let nextNode = list;
+		// 	while(nextNode.next) {
+		// 		if(nextNode.key === key) {
+		// 			nextNode.value = value;
+		// 			return;
+		// 		} else {
+		// 			nextNode = nextNode.next;
+		// 		}
+		// 	}
+		// 	nextNode.next = {key, value, next: null};
+		// }
+		// mmp.prototype.get = function(key) {
+		// 	let hash = this.makeHash(key);
+		// 	let list = this.bucket[hash % this.len];
+		// 	let nextNode = list.next;
+		// 	while(nextNode) {
+		// 		if(nextNode.key === key) {
+		// 			return nextNode.value;
+		// 		} else {
+		// 			nextNode = nextNode.next;
+		// 		}
+		// 	}
+		// 	return;
+		// }
+		// mmp.prototype.has = function(key) {
+		// 	let hash = this.makeHash(key);
+		// 	let list = this.bucket[hash % this.len];
+		// 	let nextNode = list.next;
+		// 	while(nextNode) {
+		// 		if(nextNode.key === key) {
+		// 			return true;
+		// 		} else {
+		// 			nextNode = nextNode.next;
+		// 		}
+		// 	}
+		// 	return false;
+		// }
+		// mmp.prototype.delete = function(key) {
+		// 	let hash = this.makeHash(key);
+		// 	let list = this.bucket[hash % this.len];
+		// 	let nextNode = list.next;
+		// 	while(nextNode) {
+		// 		if(nextNode.next.key === key) {
+		// 			nextNode.next = nextNode.next.next;
+		// 			return true;
+		// 		} else {
+		// 			nextNode = nextNode.next;
+		// 		}
+		// 	}
+		// 	return false;
+		// }
+		// mmp.prototype.clear = function() {
+		// 	this.init();
+		// }
+		// let map = new mmp();
+		// 判断链表内部是否有环，采用一个步长为1和一个步长为2的指针进行遍历，从第三次开始，若出现两指针相同，且都不为空时，确定有环
+		// 传入链表头部作为参数
+		function findRing(header) {
+			let point1 = header.next;
+			let point2 = header.next;
+				point2 = point2 && point2.next;
+			while(point1 && point2) {
+				if(point1 == point2) {
+					return true;
+				}
+				point1 = point1.next;
+				point2 = point2.next;
+				point2 = point2 && point2.next;
+			}
+			return false;
+		}
+		// 链表只要能拿到头部的数据，就可以遍历出整条链表的数据
+		let headSheet = {value: 1, next: null};
+		function addSheet(sheet, val, index=Infinity) {
+			let currentAdd;
+			let NextNode = sheet;
+			let len = 1;
+			if(index < 1) {
+				return;
+			}
+			while (NextNode.next) {
+				len ++;
+				NextNode = NextNode.next;
+			}
+			if(index >= len) {
+				NextNode.next = {value: val, next: null};
+				currentAdd = NextNode.next
+			} else {
+				let TempSheet;
+				let currentNode = headSheet;
+				for(let i = 1; i < index; i++) {
+					currentNode = currentNode.next;
+				}
+				TempSheet = currentNode.next;
+				currentNode.next = {value: val, next: TempSheet};
+				currentAdd = currentNode.next;
+			}
+			return currentAdd;
+		}
+		addSheet(headSheet, 2);
+		addSheet(headSheet, 3);
+		addSheet(headSheet, 4);
+		addSheet(headSheet, 5);
+		addSheet(headSheet, 6);
+
+
+		// WeakMap只能传入引用值
+		// 若引用值在外部违背引用，在下一轮内存清理的时候内存会被释放, map是由set演变而来，set在链表里没有value，只有key和next
+		// 迭代器，每个迭代器支持for of循环
+		// Iterator
+		// 每个迭代器有专用指针，开始时指向数据结构第一个值，每次调用next，返回当前值，指针指向下一级
+		// function mIterator(arr = []) {
+		// 	let currentIndex = 0;
+		// 	if(arr.length - 1 < currentIndex) {
+		// 		return {
+		// 			value: undefined,
+		// 			done: true
+		// 		}
+		// 	} else {
+		// 		return {
+		// 			value: arr[currentIndex ++],
+		// 			done: false
+		// 		}
+		// 	}
+		// }
+		// 默认的Iterator接口：Array Map Set String arguments NodeLists
+		// Array Map Set: entries(), keys(), values()
+		// 数组中的迭代器指针，每次指向下一个索引；Map、Set转换为单项链表，指针每次指向一个节点，指针下移
+		// 对象是不可迭代的，因为没有[Symbol.Iterator]().next()方法，数组有，例如[1, 2, 3][Symbol.Iterator]().next()
+		// 数组是有序的，对象是无序的（对象没有明确的顺序）
+		// Generator生成器，用于生成迭代器，是函数，function *createIterator() {yield 1; yield 2; yield 3;} createIterator().next()
+		// function open() {
+		// 	console.log('openting...');
+		// 	setTimeout(() => {
+		// 		console.log('opened');
+		// 		// load();
+		// 	}, 1000);
+		// }
+		// function load() {
+		// 	console.log('loading');
+		// 	setTimeout(() => {
+		// 		console.log('laded');
+		// 		// close();
+		// 	}, 3000);
+		// }
+		// function close() {
+		// 	console.log('closing');
+		// 	setTimeout(() => {
+		// 		console.log('closed');
+		// 	}, 1000);
+		// }
+		// function *loadElephent() {
+		// 	yield open();
+		// 	yield load();
+		// 	yield close();
+		// }
+		// let loadelephent = loadElephent();
+		// class类的应用
+		// class Persion {
+		// 	constructor(name, age = 0) {
+		// 		this.name = name;
+		// 		this.age = age;
+		// 	}
+		// 	say() {
+		// 		console.log('姓名' + this.name + '年龄' + this.age);
+		// 	}
+		// }
+		// class Children extends Persion {
+		// 	constroctor(age, name) {
+		// 		// 如果需要调用this必须在constroctor里面有super，代表调用父类构造函数，绑定this为当前子类的this
+		// 		// super当成对象则表示父类的原型
+		// 		super(age, name);
+		// 	}
+		// }
+		// primise异步代码，有生命周期，开始pending状态，最后变为resolve状态或则reject状态
+		// let S1 = new Promise(function(resolve, reject) {					// A 		A做完了改变s1
+		// 	setTimeout(() => {resolve({value: 'A'})}, 1000);				//    s1
+		// })																// B  		B看到s1变化了开始做，做完了改变s2
+		// 	.then((data) => {											    //	  s2
+		// 		console.log(data);											// C
+		// 		console.log('A做完了');
+		// 		return new Promise((resolve, reject) => {
+		// 			setTimeout(() => {resolve({value: 'B'})}, 1000);
+		// 		})
+		// 	}, error => console.log(error))
+		// 	.then((data) => {
+		// 		console.log(data);
+		// 		console.log('B做完了');
+		// 	}, error => console.log(error))
+		// const myAjax = (url, method = 'GET') => {
+		// 	return new Promise((resolve, reject) => {
+		// 		// 此处需要引入jquery方法
+		// 		$.ajax({
+		// 			url,
+		// 			method,
+		// 			success(data) {
+		// 				resolve(data);
+		// 			},
+		// 			error(err) {
+		// 				reject(err);
+		// 			}
+		// 		})
+		// 	})
+		// }
+		// let ajax1 = myAjax('www.xxx.com').then(() => {
+		// 	console.log(data)
+		// }, () => {
+		// 	console.log(err)
+		// })
+
+		// let loadImg = (url) => {
+		// 	let img = new Image();
+		// 	return new Promise((resolve, reect) => {
+		// 		img.onload = () => {
+		// 			resolve(img)
+		// 		};
+		// 		img.onerror = () => {
+		// 			resolve(`${url} is not an effective URL`);
+		// 		}
+		// 		img.src = url;
+		// 	})
+		// }
+		// loadImg('./imgs/sleepy.gif').then((img) => {
+		// 	document.getElementsByTagName('div')[0].appendChild(img)
+		// }, (err) => {
+		// 	console.log(err)
+		// })
+		// promise理解
+		// 方法： .resolve .reject .all .race .then .catch .finally
+		// var p0 = new Promise((resolve, reject) => {setTimeout(() => resolve(0), 1000)})
+		// var p1 = Promise.resolve(1);
+		// var p2 = Promise.reject(2);
+		// // all谁报错就将错误返回出来，否则返回全部为一个数组
+		// var p3 = Promise.all([p1, p2]).then(data => console.log(data), err => console.log(err))
+		// // race 谁先跑完就返回谁
+		// var p4 = Promise.race([p0, p1]);
+		// catch为错误的时候执行回调函数，配合.then一起使用，此时.then里面只传一个成功的回调函数
+		//    .then(() => {}).catch(() => {})
+		// finally后面跟的参数在当前promise执行完后一定执行，不取决于promise的状态
+		// promise的实现
+
+		// function myPromise(fn) {
+		// 	if(typeof fn !== 'function') {
+		// 		throw TypeError(`myPromise resolver ${fn} is not a function`);
+		// 	}
+		// 	this.status = 'pending';
+		// 	this.data = undefined;
+		// 	var that = this
+		// 	function resolve() {
+		// 		if(that.status == 'pending') {
+		// 			that.status = 'resolved';
+		// 		}
+		// 	};
+		// 	function reject() {
+		// 		if(that.status == 'pending') {
+		// 			that.status = 'rejected';
+		// 		}
+		// 	};
+		// 	fn(resolve, reject);
+		// }
+
+		// class MyPromise {
+		// 	constructor(fn) {
+		// 		if(typeof fn !== 'function') {
+		// 			throw TypeError(`MyPromise resolver ${fn} is not a function`);
+		// 		}
+		// 		this.status = 'pending';
+		// 		this.data = undefined;
+		// 		let resolve = (data) => {
+		// 			if(this.status == 'pending') {
+		// 					this.status = 'resolved';
+		// 					this.data = data;
+		// 					this.resolveCB && this.resolveCB();
+		// 			}
+		// 		};
+		// 		let reject = (data) => {
+		// 			if(this.status == 'pending') {
+		// 				this.status = 'rejected';
+		// 				this.data = data;
+		// 				this.rejectCB && this.rejectCB();
+		// 			}
+		// 		};
+		// 		fn(resolve, reject);
+		// 	}
+		// 	then(resolvedFn, rejectedFn) {
+		// 		if(this.status == 'resolved') {
+		// 			let res = resolvedFn(this.data);
+		// 			if(res instanceof MyPromise) {
+		// 				return res;
+		// 			} else {
+		// 				return MyPromise.resolve(res);
+		// 			}
+		// 		}
+		// 		if(this.status == 'rejected') {
+		// 			let res = rejectedFn(this.data);
+		// 			if(res instanceof MyPromise) {
+		// 				return res;
+		// 			} else {
+		// 				return MyPromise.resolve(res);
+		// 			}
+		// 		}
+		// 		// 链式调用返回一个promise对象，接下来then执行参数由返回的promise函数决定
+		// 		// 如果不是promise对象会返回一个promise对象，这个promise对象的状态是resolve状态
+		// 		// 采用一个res去接收回调后的参数，对参数进行判断
+		// 		// pending的时候需要监测状态什么时候改变，只有状态改变了才去执行后面的函数
+		// 		if(this.status == 'pending') {
+		// 			return new MyPromise((resolve, reject) => {
+		// 				this.resolveCB = ((resolvedFn) => {
+		// 					return () => {
+		// 						let res = resolvedFn(this.data);
+		// 						if(res instanceof MyPromise) {
+		// 							res.then(resolve, reject);
+		// 						} else {
+		// 							resolve(res);
+		// 						}
+		// 					}
+		// 				})(resolvedFn);
+		// 				this.rejectCB = ((rejectedFn) => {
+		// 					return () => {
+		// 						let res = rejectedFn(this.data);
+		// 						if(res instanceof MyPromise) {
+		// 							res.then(resolve, reject);
+		// 						} else {
+		// 							reject(res);
+		// 						}
+		// 					}
+		// 				})(rejectedFn);
+		// 			})
+		// 		}
+		// 	}
+		// 	// 在构造函数上添加静态方法，在方法前面增加static,(目前只支持方法，不支持属性)
+		// 	static resolve(data) {
+		// 		return new MyPromise(resolve => resolve(data))
+		// 	}
+		// 	static reject(data) {
+		// 		return new MyPromise(reject => reject(data))
+		// 	}
+		// }
+		// 实验
+		// // MyPromise方法的结果
+		// let p = new MyPromise((resolve, reject) => {
+		// 	setTimeout(() => {resolve(111)}, 1000);
+		// })
+		// let p1 = p.then(data => {
+		// 		console.log('suc1', data);
+		// 		return new MyPromise((resolve, reject) => {
+		// 			setTimeout(() => {resolve(222)}, 2000);
+		// 		})
+		// 	}, err => console.log('err1', err))
+		// let p2 = p1.then(data => {
+		// 		console.log('suc2', data);
+		// 		return new MyPromise((resolve, reject) => {
+		// 			setTimeout(() => {reject(333)}, 2000);
+		// 		})
+		// 	}, err => console.log('err2', err))
+		// let p3 = p2.then(data => console.log('finallSuc', data), err => console.log('finallErr', err));
+		// // Promise方法的结果
+		// let pro = new Promise((resolve, reject) => {
+		// 	setTimeout(() => {resolve(111)}, 2000);
+		// })
+		// let pro1 = pro.then(data => {
+		// 		console.log('1s', data);
+		// 		return new Promise((suc, err) => {
+		// 			setTimeout(() => {suc(222)}, 2000);
+		// 		})
+		// 	}, err => console.log('1e', err))
+		// let pro2 = pro1.then(data => {
+		// 		console.log('2s', data);
+		// 		return new Promise((suc, err) => {
+		// 			setTimeout(() =>{err(333)}, 2000);
+		// 		})
+		// 	}, err => console.log('2e', err))
+		// let pro3 = pro2.then(data => console.log('3s', data), err => console.log('3e', err))
+
+
+		// 暗示全局变量
+		// var a = 10;
+		// function tes(a) {
+		// 	console.log(a);
+		// 	delete a;
+		// 	console.log(a);
+		// }
+		// tes(20);
+		// console.log(a);
+		// delete a;
+		// console.log(a);
+	</script>
+</body>
+</html>
