@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>colorSelect-test</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 100px 0 0 100px;
+            border: 2px solid black;
+            background-color: red;
+            overflow: hidden;
+        }
+
+        .white-form {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #fff, transparent);
+        }
+
+        .black-form {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, #000, transparent);
+        }
+
+        .dot {
+            position: absolute;
+            left: calc(100% - 7px);
+            top: -7px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: pointer;
+        }
+
+        .show-result {
+            position: relative;
+            width: 200px;
+            margin: 5px 0 0 100px;
+        }
+
+        .value {
+            border: 1px solid #666;
+            color: #333;
+            text-align: center;
+            width: 150px;
+        }
+
+        .demo {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            width: 14px;
+            height: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper J-wrapper">
+        <div class="white-form">
+            <div class="black-form"></div>
+        </div>
+        <span class="dot J-dot"></span>
+    </div>
+    <div class="show-result">
+        <input type="text" class="value J-value" value="#ff0000">
+        <span class="demo J-demo"></span>
+    </div>
+    <script>
+        function m$(str) {
+            if (typeof str == 'string') {
+                let inx = str.substr(0, 1);
+                if (inx == '.') {
+                    return document.getElementsByClassName(str.substr(1));
+                } else if (inx == '#') {
+                    return document.getElementById(str.substr(1));
+                } else {
+                    return document.getElementsByTagName(str);
+                }
+            }
+        }
+        function toString16(num) {
+            let endNum = num % 16;
+            switch (endNum) {
+                case 10:
+                    endNum = 'a';
+                    break;
+                case 11:
+                    endNum = 'b';
+                    break;
+                case 12:
+                    endNum = 'c';
+                    break;
+                case 13:
+                    endNum = 'd';
+                    break;
+                case 14:
+                    endNum = 'e';
+                    break;
+                case 15:
+                    endNum = 'f';
+                    break;
+                default:
+                    break;
+            }
+            if (num < 16) {
+                switch (num) {
+                    case 10:
+                        return 'a';
+                    case 11:
+                        return 'b';
+                    case 12:
+                        return 'c';
+                    case 13:
+                        return 'd';
+                    case 14:
+                        return 'e';
+                    case 15:
+                        return 'f';
+                    default:
+                        return num + '';
+                }
+            }
+            let childNum = Math.floor(num / 16)
+            return toString16(childNum) + endNum;
+        }
+    </script>
+    <script>
+        let $dot = m$('.J-dot')[0],
+            $wrapper = m$('.wrapper')[0];
+        let wrapperData = {
+            left: $wrapper.offsetLeft,
+            top: $wrapper.offsetTop,
+            width: $wrapper.offsetWidth,
+            height: $wrapper.offsetHeight
+        };
+        let dotData = {
+            left: $dot.offsetLeft,
+            top: $dot.offsetTop,
+            width: $dot.offsetWidth,
+            height: $dot.offsetHeight
+        };
+        function moveDot(x, y) {
+            let tx = x - dotData.width / 2,
+                ty = y - dotData.height / 2,
+                px, py;
+            if (tx < -dotData.width / 2) {
+                tx = -dotData.width / 2;
+            } else if (tx > (wrapperData.width - 4 - dotData.width / 2)) {
+                tx = (wrapperData.width - 4 - dotData.width / 2);
+            }
+            if (ty < -dotData.height / 2) {
+                ty = -dotData.height / 2;
+            } else if (ty > (wrapperData.height - 4 - dotData.height / 2)) {
+                ty = (wrapperData.height - 4 - dotData.height / 2);
+            }
+            px = (tx + dotData.width / 2) / (wrapperData.width - 4);
+            py = (ty + dotData.height / 2) / (wrapperData.height - 4);
+            px = px.toFixed(3);
+            py = py.toFixed(3);
+            $dot.style.left = tx + 'px';
+            $dot.style.top = ty + 'px';
+            let color = computedColor(px, py, { r: 255, g: 0, b: 0 }, 1);
+            m$('.J-value')[0].value = color;
+            m$('.J-demo')[0].style.backgroundColor = color;
+        }
+        function computedColor(x, y, targetColor, flag) {
+            let r = singleColorVal(x, y, targetColor.r),
+                g = singleColorVal(x, y, targetColor.g),
+                b = singleColorVal(x, y, targetColor.b);
+            let fr = toString16(r),
+                fg = toString16(g),
+                fb = toString16(b);
+            if (flag) {
+                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fb.length < 2 ? '0' + fb : fb) + (fg.length < 2 ? '0' + fg : fg);
+            } else {
+                return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+            }
+        }
+        function singleColorVal(x, y, c) {
+            return parseInt((255 - (255 - c) * x) * (1 - y));
+        }
+        $wrapper.onmousedown = function (de) {
+            let x = de.clientX - wrapperData.left,
+                y = de.clientY - wrapperData.top;
+            moveDot(x, y);
+            document.onmousemove = null;
+            document.onmousemove = function (me) {
+                x = me.clientX - wrapperData.left;
+                y = me.clientY - wrapperData.top;
+                moveDot(x, y);
+            }
+        }
+        document.onmouseup = function () {
+            document.onmousemove = null;
+        }
+    </script>
+</body>
+
+</html>
