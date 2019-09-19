@@ -45,6 +45,25 @@
             cursor: pointer;
         }
 
+        .color-bar {
+            position: relative;
+            width: 300px;
+            height: 30px;
+            border: 1px solid black;
+            background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+            margin: 10px 0 0 100px;
+            box-sizing: border-box;
+        }
+
+        .color-bar .pointer {
+            position: absolute;
+            bottom: -5px;
+            left: -5px;
+            border-style: solid;
+            border-width: 0 5px 5px 5px;
+            border-color: transparent transparent #aaa transparent;
+        }
+
         .show-result {
             position: relative;
             width: 200px;
@@ -75,6 +94,9 @@
         </div>
         <span class="dot J-dot"></span>
     </div>
+    <div class="color-bar J-color-bar">
+        <span class="pointer J-pointer"></span>
+    </div>
     <div class="show-result">
         <input type="text" class="value J-value" value="#ff0000">
         <span class="demo J-demo"></span>
@@ -92,6 +114,7 @@
                 }
             }
         }
+
         function toString16(num) {
             let endNum = num % 16;
             switch (endNum) {
@@ -140,7 +163,9 @@
     </script>
     <script>
         let $dot = m$('.J-dot')[0],
-            $wrapper = m$('.wrapper')[0];
+            $wrapper = m$('.wrapper')[0],
+            $colorBarWrapper = m$('.J-color-bar')[0],
+            $pointer = m$('.J-pointer')[0];
         let wrapperData = {
             left: $wrapper.offsetLeft,
             top: $wrapper.offsetTop,
@@ -152,6 +177,11 @@
             top: $dot.offsetTop,
             width: $dot.offsetWidth,
             height: $dot.offsetHeight
+        };
+        let currentColor = {
+            r: 255,
+            g: 0,
+            b: 0
         };
         function moveDot(x, y) {
             let tx = x - dotData.width / 2,
@@ -173,10 +203,11 @@
             py = py.toFixed(3);
             $dot.style.left = tx + 'px';
             $dot.style.top = ty + 'px';
-            let color = computedColor(px, py, { r: 255, g: 0, b: 0 }, 1);
+            let color = computedColor(px, py, currentColor, 1);
             m$('.J-value')[0].value = color;
             m$('.J-demo')[0].style.backgroundColor = color;
         }
+
         function computedColor(x, y, targetColor, flag) {
             let r = singleColorVal(x, y, targetColor.r),
                 g = singleColorVal(x, y, targetColor.g),
@@ -185,14 +216,99 @@
                 fg = toString16(g),
                 fb = toString16(b);
             if (flag) {
-                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fb.length < 2 ? '0' + fb : fb) + (fg.length < 2 ? '0' + fg : fg);
+                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fg.length < 2 ? '0' + fg : fg) + (fb.length < 2 ? '0' + fb : fb);
             } else {
                 return 'rgb(' + r + ', ' + g + ', ' + b + ')';
             }
         }
+
         function singleColorVal(x, y, c) {
             return parseInt((255 - (255 - c) * x) * (1 - y));
         }
+
+        function conputedColorBar(percent) {
+            // #f00 - #ff0
+            let o = 0;
+            if(percent < 1 / 6) {
+                o = parseInt(percent * 6 * 255);
+                currentColor = {
+                    r: 255,
+                    g: o,
+                    b: 0
+                };
+                $wrapper.style.backgroundColor = 'rgb(255, ' + o + ', 0)';
+                // console.log('rgb(255, ' + o + ', 0)');
+                // m$('.J-value')[0].value = '#ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00';
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, ' + o + ', 0)';
+                // console.log('1');
+                // #ff0 - #0f0
+            } else if(percent < 1 / 3) {
+                o = parseInt((2 - percent * 6) * 255);
+                currentColor = {
+                    r: o,
+                    g: 255,
+                    b: 0
+                };
+                $wrapper.style.backgroundColor = 'rgb(' + o + ', 255, 0)';
+                // console.log('rgb(' + o + ', 255, 0)');
+                // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff00';
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 255, 0)';
+                // console.log('2');
+                // #0f0 - #0ff
+            } else if(percent < 1 / 2) {
+                o = parseInt((percent * 6 - 2) * 255);
+                currentColor = {
+                    r: 0,
+                    g: 255,
+                    b: o
+                };
+                $wrapper.style.backgroundColor = 'rgb(0, 255, ' + o + ')';
+                // m$('.J-value')[0].value = '#00ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, 255, ' + o + ')';
+                // console.log('rgb(0, 255, ' + o + ')');
+                // console.log('3');
+                // #0ff - #00f
+            } else if(percent < 2 / 3) {
+                o = parseInt((4 - percent * 6) * 255);
+                currentColor = {
+                    r: 0,
+                    g: o,
+                    b: 255
+                };
+                $wrapper.style.backgroundColor = 'rgb(0, ' + o + ', 255)';
+                // m$('.J-value')[0].value = '#00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff';
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, ' + o + ', 255)';
+                // console.log('rgb(0, ' + o + ', 255)');
+                // console.log('4');
+                // #00f - #f0f
+            } else if(percent < 5 / 6) {
+                o = parseInt((percent * 6 - 4) * 255);
+                currentColor = {
+                    r: o,
+                    g: 0,
+                    b: 255
+                };
+                $wrapper.style.backgroundColor = 'rgb(' + o + ', 0, 255)';
+                // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00ff';
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 0, 255)';
+                // console.log('rgb(' + o + ', 0, 255)');
+                // console.log('5');
+                // #f0f - #f00
+            } else {
+                o = parseInt((6 - percent * 6) * 255);
+                currentColor = {
+                    r: 255,
+                    g: 0,
+                    b: o
+                };
+                $wrapper.style.backgroundColor = 'rgb(255, 0, ' + o + ')';
+                // m$('.J-value')[0].value = '#ff00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
+                // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, 0, ' + o + ')';
+                // console.log('rgb(255, 0, ' + o + ')');
+                // console.log('6');
+            }
+        }
+        // wrapper move begin
         $wrapper.onmousedown = function (de) {
             let x = de.clientX - wrapperData.left,
                 y = de.clientY - wrapperData.top;
@@ -202,6 +318,27 @@
                 x = me.clientX - wrapperData.left;
                 y = me.clientY - wrapperData.top;
                 moveDot(x, y);
+            }
+        }
+        // colorBar move begin
+        $colorBarWrapper.onmousedown = function (de) {
+            let $dom = this;
+            let x = parseInt(de.clientX - $dom.offsetLeft);
+            let _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
+            _percent = _percent > 1 ? 1 : _percent;
+            $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) + 'px';
+            conputedColorBar(_percent);
+            // 每次点击时将dot重置为右上角
+            moveDot(wrapperData.width, 0);
+            // console.log(_percent);
+            document.onmousemove = function (me) {
+                x = parseInt(me.clientX - $dom.offsetLeft);
+                _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
+                _percent = _percent > 1 ? 1 : _percent < 0 ? 0 : _percent;
+                $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) + 'px';
+                conputedColorBar(_percent);
+                // 每次点击时将dot重置为右上角
+                moveDot(wrapperData.width, 0);
             }
         }
         document.onmouseup = function () {
