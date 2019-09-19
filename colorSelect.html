@@ -42,7 +42,7 @@
             height: 10px;
             border-radius: 50%;
             border: 2px solid #fff;
-            cursor: pointer;
+            cursor: default;
         }
 
         .color-bar {
@@ -61,7 +61,7 @@
             left: -5px;
             border-style: solid;
             border-width: 0 5px 5px 5px;
-            border-color: transparent transparent #aaa transparent;
+            border-color: transparent transparent #333 transparent;
         }
 
         .show-result {
@@ -83,6 +83,19 @@
             right: 10px;
             width: 14px;
             height: 14px;
+            cursor: pointer;
+            background-color: red;
+            transition: transform .4s ease-in;
+        }
+
+        .max-show {
+            /* right: -300px;
+            top: -150px; */
+            /* border: 1px solid #999; */
+            /* width: 150px;
+            height: 150px; */
+            transform: translate(200px, -100px) scale(10);
+            transition: transform .4s ease-in;
         }
     </style>
 </head>
@@ -183,6 +196,7 @@
             g: 0,
             b: 0
         };
+
         function moveDot(x, y) {
             let tx = x - dotData.width / 2,
                 ty = y - dotData.height / 2,
@@ -216,7 +230,8 @@
                 fg = toString16(g),
                 fb = toString16(b);
             if (flag) {
-                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fg.length < 2 ? '0' + fg : fg) + (fb.length < 2 ? '0' + fb : fb);
+                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fg.length < 2 ? '0' + fg : fg) + (fb.length < 2 ? '0' +
+                    fb : fb);
             } else {
                 return 'rgb(' + r + ', ' + g + ', ' + b + ')';
             }
@@ -229,7 +244,7 @@
         function conputedColorBar(percent) {
             // #f00 - #ff0
             let o = 0;
-            if(percent < 1 / 6) {
+            if (percent < 1 / 6) {
                 o = parseInt(percent * 6 * 255);
                 currentColor = {
                     r: 255,
@@ -242,7 +257,7 @@
                 // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, ' + o + ', 0)';
                 // console.log('1');
                 // #ff0 - #0f0
-            } else if(percent < 1 / 3) {
+            } else if (percent < 1 / 3) {
                 o = parseInt((2 - percent * 6) * 255);
                 currentColor = {
                     r: o,
@@ -255,7 +270,7 @@
                 // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 255, 0)';
                 // console.log('2');
                 // #0f0 - #0ff
-            } else if(percent < 1 / 2) {
+            } else if (percent < 1 / 2) {
                 o = parseInt((percent * 6 - 2) * 255);
                 currentColor = {
                     r: 0,
@@ -268,7 +283,7 @@
                 // console.log('rgb(0, 255, ' + o + ')');
                 // console.log('3');
                 // #0ff - #00f
-            } else if(percent < 2 / 3) {
+            } else if (percent < 2 / 3) {
                 o = parseInt((4 - percent * 6) * 255);
                 currentColor = {
                     r: 0,
@@ -281,7 +296,7 @@
                 // console.log('rgb(0, ' + o + ', 255)');
                 // console.log('4');
                 // #00f - #f0f
-            } else if(percent < 5 / 6) {
+            } else if (percent < 5 / 6) {
                 o = parseInt((percent * 6 - 4) * 255);
                 currentColor = {
                     r: o,
@@ -335,7 +350,8 @@
                 x = parseInt(me.clientX - $dom.offsetLeft);
                 _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
                 _percent = _percent > 1 ? 1 : _percent < 0 ? 0 : _percent;
-                $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) + 'px';
+                $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) +
+                    'px';
                 conputedColorBar(_percent);
                 // 每次点击时将dot重置为右上角
                 moveDot(wrapperData.width, 0);
@@ -344,6 +360,10 @@
         document.onmouseup = function () {
             document.onmousemove = null;
         }
+        m$('.J-demo')[0].addEventListener('click', function() {
+            console.log(this);
+            m$('.J-demo')[0].classList.value.split(' ').indexOf('max-show') == '-1' ? m$('.J-demo')[0].classList.add('max-show') : m$('.J-demo')[0].classList.remove('max-show');
+        });
     </script>
 </body>
 
