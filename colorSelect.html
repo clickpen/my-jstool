@@ -10,11 +10,14 @@
             margin: 0;
         }
 
+        .color-select {
+            margin: 100px;
+        }
+
         .wrapper {
             position: relative;
             width: 300px;
             height: 200px;
-            margin: 100px 0 0 100px;
             border: 2px solid black;
             background-color: red;
             overflow: hidden;
@@ -51,7 +54,7 @@
             height: 30px;
             border: 1px solid black;
             background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
-            margin: 10px 0 0 100px;
+            margin-top: 10px;
             box-sizing: border-box;
         }
 
@@ -67,7 +70,7 @@
         .show-result {
             position: relative;
             width: 200px;
-            margin: 5px 0 0 100px;
+            margin-top: 5px;
         }
 
         .value {
@@ -101,33 +104,417 @@
 </head>
 
 <body>
-    <div class="wrapper J-wrapper">
-        <div class="white-form">
-            <div class="black-form"></div>
+    <div class="color-select">
+        <div class="wrapper J-wrapper">
+            <div class="white-form">
+                <div class="black-form"></div>
+            </div>
+            <span class="dot J-dot"></span>
         </div>
-        <span class="dot J-dot"></span>
-    </div>
-    <div class="color-bar J-color-bar">
-        <span class="pointer J-pointer"></span>
-    </div>
-    <div class="show-result">
-        <input type="text" class="value J-value" value="#ff0000">
-        <span class="demo J-demo"></span>
+        <div class="color-bar J-color-bar">
+            <span class="pointer J-pointer"></span>
+        </div>
+        <div class="show-result">
+            <input type="text" class="value J-value" value="#ff0000">
+            <span class="demo J-demo"></span>
+        </div>
     </div>
     <script>
-        function m$(str) {
-            if (typeof str == 'string') {
-                let inx = str.substr(0, 1);
-                if (inx == '.') {
-                    return document.getElementsByClassName(str.substr(1));
-                } else if (inx == '#') {
-                    return document.getElementById(str.substr(1));
-                } else {
-                    return document.getElementsByTagName(str);
+        let Fcolor = (function () {
+            // 获取dom元素方法
+            function m$(str) {
+                if (typeof str == 'string') {
+                    let inx = str.substr(0, 1);
+                    if (inx == '.') {
+                        return document.getElementsByClassName(str.substr(1));
+                    } else if (inx == '#') {
+                        return document.getElementById(str.substr(1));
+                    } else {
+                        return document.getElementsByTagName(str);
+                    }
                 }
             }
-        }
+            // 转换为16进制的方法，最少保留两位数
+            function toString16(num) {
+                let endNum = num % 16;
+                switch (endNum) {
+                    case 10:
+                        endNum = 'a';
+                        break;
+                    case 11:
+                        endNum = 'b';
+                        break;
+                    case 12:
+                        endNum = 'c';
+                        break;
+                    case 13:
+                        endNum = 'd';
+                        break;
+                    case 14:
+                        endNum = 'e';
+                        break;
+                    case 15:
+                        endNum = 'f';
+                        break;
+                    default:
+                        break;
+                }
+                if (num < 16) {
+                    switch (num) {
+                        case 10:
+                            return 'a';
+                        case 11:
+                            return 'b';
+                        case 12:
+                            return 'c';
+                        case 13:
+                            return 'd';
+                        case 14:
+                            return 'e';
+                        case 15:
+                            return 'f';
+                        default:
+                            return num + '';
+                    }
+                }
+                let childNum = Math.floor(num / 16)
+                return toString16(childNum) + endNum;
+            }
+            let $dot = m$('.J-dot')[0],
+                $wrapper = m$('.wrapper')[0],
+                $colorBarWrapper = m$('.J-color-bar')[0],
+                $pointer = m$('.J-pointer')[0];
+            let wrapperData = {
+                left: $wrapper.offsetLeft,
+                top: $wrapper.offsetTop,
+                width: $wrapper.offsetWidth,
+                height: $wrapper.offsetHeight
+            };
+            let dotData = {
+                left: $dot.offsetLeft,
+                top: $dot.offsetTop,
+                width: $dot.offsetWidth,
+                height: $dot.offsetHeight
+            };
+            // 当前颜色值
+            let currentColor = {
+                r: 255,
+                g: 0,
+                b: 0
+            };
 
+            function moveDot(x, y) {
+                let tx = x - dotData.width / 2,
+                    ty = y - dotData.height / 2,
+                    px, py;
+                if (tx < -dotData.width / 2) {
+                    tx = -dotData.width / 2;
+                } else if (tx > (wrapperData.width - 4 - dotData.width / 2)) {
+                    tx = (wrapperData.width - 4 - dotData.width / 2);
+                }
+                if (ty < -dotData.height / 2) {
+                    ty = -dotData.height / 2;
+                } else if (ty > (wrapperData.height - 4 - dotData.height / 2)) {
+                    ty = (wrapperData.height - 4 - dotData.height / 2);
+                }
+                px = (tx + dotData.width / 2) / (wrapperData.width - 4);
+                py = (ty + dotData.height / 2) / (wrapperData.height - 4);
+                px = px.toFixed(3);
+                py = py.toFixed(3);
+                $dot.style.left = tx + 'px';
+                $dot.style.top = ty + 'px';
+                let color = computedColor(px, py, currentColor, 0);
+                m$('.J-value')[0].value = color;
+                m$('.J-demo')[0].style.backgroundColor = color;
+            }
+
+            function computedColor(x, y, targetColor, flag) {
+                let r = singleColorVal(x, y, targetColor.r),
+                    g = singleColorVal(x, y, targetColor.g),
+                    b = singleColorVal(x, y, targetColor.b);
+                let fr = toString16(r),
+                    fg = toString16(g),
+                    fb = toString16(b);
+                if (flag) {
+                    return '#' + (fr.length < 2 ? '0' + fr : fr) + (fg.length < 2 ? '0' + fg : fg) + (fb
+                        .length <
+                        2 ? '0' +
+                        fb : fb);
+                } else {
+                    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+                }
+            }
+            // 计算二维内的单个颜色值，左->右: 225 -> current；上->下: current -> 0;
+            function singleColorVal(x, y, c) {
+                return parseInt((255 - (255 - c) * x) * (1 - y));
+            }
+
+            function conputedColorBar(percent) {
+                // #f00 - #ff0
+                let o = 0;
+                if (percent < 1 / 6) {
+                    o = parseInt(percent * 6 * 255);
+                    currentColor = {
+                        r: 255,
+                        g: o,
+                        b: 0
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(255, ' + o + ', 0)';
+                    // console.log('rgb(255, ' + o + ', 0)');
+                    // m$('.J-value')[0].value = '#ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00';
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, ' + o + ', 0)';
+                    // console.log('1');
+                    // #ff0 - #0f0
+                } else if (percent < 1 / 3) {
+                    o = parseInt((2 - percent * 6) * 255);
+                    currentColor = {
+                        r: o,
+                        g: 255,
+                        b: 0
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(' + o + ', 255, 0)';
+                    // console.log('rgb(' + o + ', 255, 0)');
+                    // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff00';
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 255, 0)';
+                    // console.log('2');
+                    // #0f0 - #0ff
+                } else if (percent < 1 / 2) {
+                    o = parseInt((percent * 6 - 2) * 255);
+                    currentColor = {
+                        r: 0,
+                        g: 255,
+                        b: o
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(0, 255, ' + o + ')';
+                    // m$('.J-value')[0].value = '#00ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, 255, ' + o + ')';
+                    // console.log('rgb(0, 255, ' + o + ')');
+                    // console.log('3');
+                    // #0ff - #00f
+                } else if (percent < 2 / 3) {
+                    o = parseInt((4 - percent * 6) * 255);
+                    currentColor = {
+                        r: 0,
+                        g: o,
+                        b: 255
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(0, ' + o + ', 255)';
+                    // m$('.J-value')[0].value = '#00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff';
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, ' + o + ', 255)';
+                    // console.log('rgb(0, ' + o + ', 255)');
+                    // console.log('4');
+                    // #00f - #f0f
+                } else if (percent < 5 / 6) {
+                    o = parseInt((percent * 6 - 4) * 255);
+                    currentColor = {
+                        r: o,
+                        g: 0,
+                        b: 255
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(' + o + ', 0, 255)';
+                    // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00ff';
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 0, 255)';
+                    // console.log('rgb(' + o + ', 0, 255)');
+                    // console.log('5');
+                    // #f0f - #f00
+                } else {
+                    o = parseInt((6 - percent * 6) * 255);
+                    currentColor = {
+                        r: 255,
+                        g: 0,
+                        b: o
+                    };
+                    $wrapper.style.backgroundColor = 'rgb(255, 0, ' + o + ')';
+                    // m$('.J-value')[0].value = '#ff00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
+                    // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, 0, ' + o + ')';
+                    // console.log('rgb(255, 0, ' + o + ')');
+                    // console.log('6');
+                }
+            }
+            // 反向计算颜色调位置以及dot位置
+            function computedposition(str) {
+                let _colorObj = {
+                        r: 0,
+                        g: 0,
+                        b: 0
+                    },
+                    _midColorObj = {
+                        r: 0,
+                        g: 0,
+                        b: 0
+                    },
+                    xp = 0,
+                    yp = 0,
+                    barp = 0;
+                // rgb处理
+                if (/rgb/.test(str)) {
+                    // 获取rgb，对rgba也适用,控制空格
+                    let _reg = /\((\d+) *, *(\d+) *, *(\d+)/;
+                    let _regArr = str.match(_reg);
+                    _colorObj.r = parseInt(_regArr[1]) > 255 ? 255 : parseInt(_regArr[1]);
+                    _colorObj.g = parseInt(_regArr[2]) > 255 ? 255 : parseInt(_regArr[2]);
+                    _colorObj.b = parseInt(_regArr[3]) > 255 ? 255 : parseInt(_regArr[3]);
+                    // 16进制处理
+                } else if (str.substr(0, 1) == '#') {
+                    let _Hstr = str.substr(1);
+                    // 三位16进制再处理一下为6位
+                    _Hstr = _Hstr.length == 3 ? _Hstr.replace(/[\d|\w]/g, $ => $ + $) : _Hstr;
+                    // substr:从当前为开始截取第二个参数位；substring:从当前为截取到第二个参数位
+                    _colorObj.r = parseInt(_Hstr.substr(0, 2), 16);
+                    _colorObj.g = parseInt(_Hstr.substr(2, 2), 16);
+                    _colorObj.b = parseInt(_Hstr.substr(4, 2), 16);
+                    // 否则控制台打印报错信息
+                } else {
+                    console.log('传入的计算颜色"' + str + '"不是标准值!!');
+                    return;
+                }
+                // 比较得最大的值位主色
+                if (_colorObj.r >= _colorObj.g && _colorObj.r >= _colorObj.b) {
+                    _midColorObj.r = 255;
+                    lasteColorComputed(_colorObj.r, _colorObj.g, _colorObj.b, '0');
+                } else if (_colorObj.g >= _colorObj.r && _colorObj.g >= _colorObj.b) {
+                    _midColorObj.g = 255;
+                    lasteColorComputed(_colorObj.g, _colorObj.r, _colorObj.b, '1');
+                } else {
+                    _midColorObj.b = 255;
+                    lasteColorComputed(_colorObj.b, _colorObj.r, _colorObj.g, '2');
+                }
+                // 计算剩余两个颜色
+                function lasteColorComputed(cmax, c1, c2, type) {
+                    let minColor = '',
+                        changeColor = '';
+                    // 距离顶部percent: yp;距离左边percent:xp;
+                    yp = cmax / 255;
+                    // 最大值是0，此时全都是0
+                    if (yp == 0) {
+                        return {
+                            xp: 0,
+                            yp: 0,
+                            barp: 0
+                        };
+                    }
+                    // 计算c1、c2在顶部的颜色值
+                    c1 = c1 / yp;
+                    c2 = c2 / yp;
+                    if (c1 <= c2) {
+                        xp = 1 - (c1 / 255);
+                        // 区分最小值与不定值
+                        minColor = type == '0' ? 'g' : 'r';
+                        changeColor = type == '2' ? 'g' : 'b';
+                        _midColorObj[changeColor] = parseInt(255 - (255 - c2) / xp);
+                    } else {
+                        xp = 1 - (c2 / 255);
+                        // 区分最小值与不定值
+                        minColor = type == '2' ? 'g' : 'b';
+                        changeColor = type == '0' ? 'g' : 'r';
+                        _midColorObj[changeColor] = parseInt(255 - (255 - c1) / xp);
+                    }
+                    // 将最小颜色值设为0
+                    _midColorObj[minColor] = 0;
+                }
+                // 此时根据_midColorObj中的值来计算colorBar中的位置
+                if (_midColorObj.r == 255) {
+                    // #f00 - #ff0
+                    if (_midColorObj.b == 0) {
+                        barp = _midColorObj.g / 255 / 6;
+                        // #f0f - #f00
+                    } else {
+                        barp = 1 - _midColorObj.b / 255 / 6;
+                    }
+                } else if (_midColorObj.g == 255) {
+                    // #ff0 - #0f0
+                    if (_midColorObj.b == 0) {
+                        barp = (2 - _midColorObj.r / 255) / 6;
+                        // #0f0 - 0ff
+                    } else {
+                        barp = (2 + _midColorObj.b / 255) / 6;
+                    }
+                } else if (_midColorObj.b == 255) {
+                    // #0ff - #00f
+                    if (_midColorObj.r == 0) {
+                        barp = (4 - _midColorObj.g / 255) / 6;
+                        // #00f - #f0f
+                    } else {
+                        barp = (4 + _midColorObj.r / 255) / 6;
+                    }
+                }
+                return {
+                    xp,
+                    yp: 1 - yp,
+                    barp
+                };
+            }
+            // wrapper move begin
+            $wrapper.onmousedown = function (de) {
+                let x = de.clientX - wrapperData.left,
+                    y = de.clientY - wrapperData.top;
+                moveDot(x, y);
+                document.onmousemove = null;
+                document.onmousemove = function (me) {
+                    x = me.clientX - wrapperData.left;
+                    y = me.clientY - wrapperData.top;
+                    moveDot(x, y);
+                }
+            }
+            // colorBar move begin
+            $colorBarWrapper.onmousedown = function (de) {
+                let $dom = this;
+                let x = parseInt(de.clientX - $dom.offsetLeft);
+                let _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
+                _percent = _percent > 1 ? 1 : _percent;
+                $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth /
+                    2) +
+                    'px';
+                conputedColorBar(_percent);
+                // 每次点击时将dot重置为右上角
+                moveDot(wrapperData.width, 0);
+                document.onmousemove = function (me) {
+                    x = parseInt(me.clientX - $dom.offsetLeft);
+                    _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
+                    _percent = _percent > 1 ? 1 : _percent < 0 ? 0 : _percent;
+                    $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer
+                            .offsetWidth / 2) +
+                        'px';
+                    conputedColorBar(_percent);
+                    // 每次点击时将dot重置为右上角
+                    moveDot(wrapperData.width, 0);
+                }
+            }
+            document.onmouseup = function () {
+                document.onmousemove = null;
+            }
+            m$('.J-demo')[0].addEventListener('click', function () {
+                this.classList.value.split(' ').indexOf('max-show') == '-1' ?
+                    this.classList.add('max-show') : this.classList.remove('max-show');
+            });
+            // 输入框focus绑定键盘事件
+            m$('.J-value')[0].onkeydown = function (e) {
+                if (e.keyCode == 13) {
+                    let distentObj = computedposition(this.value);
+                    $dot.style.top = parseInt((wrapperData.height - 4) * distentObj.yp - dotData.height /
+                        2) + 'px';
+                    $dot.style.left = parseInt((wrapperData.width - 4) * distentObj.xp - dotData.width /
+                        2) + 'px';
+                    if (distentObj.barp || distentObj.barp == 0) {
+                        $pointer.style.left = parseInt(($colorBarWrapper.offsetWidth - 2) * distentObj
+                            .barp - $pointer.offsetWidth / 2) + 'px';
+                        conputedColorBar(distentObj.barp);
+                    }
+                    m$('.J-demo')[0].style.backgroundColor = this.value;
+                } else {
+                    return;
+                }
+            }
+        })()
+    </script>
+    <script>
+        // 分析rgb(134, 86, 33) = #865621;
+        // 最大颜色值是r = 134；因此：主色为r = 255； 另外两个色一个为0或则两个为0
+        // 根据主色可计算距离上侧距离百分比upPercent = 134 / 255 = 0.5255;
+        // 在二位框内最上侧颜色值为r = 134 / 0.5255 = 255; g = 86 / 0.5255 = 163.65; b = 33 / 0.5255 = 62.8;
+        // 此时比较剩余两个颜色的大小：g b，b = 62.8小；
+        // 因此以小值到0作为计算右侧距离百分比leftPercent = 1 - 62.8 / 255 = 0.7537；原计算为：255 - (255 - tb) * leftPercent = b
+        // 最右侧颜色即为rgb(255, 255 - ((255 - 163.65) / 0.7537) = 133.8, 0);
         function toString16(num) {
             let endNum = num % 16;
             switch (endNum) {
@@ -173,197 +560,6 @@
             let childNum = Math.floor(num / 16)
             return toString16(childNum) + endNum;
         }
-    </script>
-    <script>
-        let $dot = m$('.J-dot')[0],
-            $wrapper = m$('.wrapper')[0],
-            $colorBarWrapper = m$('.J-color-bar')[0],
-            $pointer = m$('.J-pointer')[0];
-        let wrapperData = {
-            left: $wrapper.offsetLeft,
-            top: $wrapper.offsetTop,
-            width: $wrapper.offsetWidth,
-            height: $wrapper.offsetHeight
-        };
-        let dotData = {
-            left: $dot.offsetLeft,
-            top: $dot.offsetTop,
-            width: $dot.offsetWidth,
-            height: $dot.offsetHeight
-        };
-        let currentColor = {
-            r: 255,
-            g: 0,
-            b: 0
-        };
-
-        function moveDot(x, y) {
-            let tx = x - dotData.width / 2,
-                ty = y - dotData.height / 2,
-                px, py;
-            if (tx < -dotData.width / 2) {
-                tx = -dotData.width / 2;
-            } else if (tx > (wrapperData.width - 4 - dotData.width / 2)) {
-                tx = (wrapperData.width - 4 - dotData.width / 2);
-            }
-            if (ty < -dotData.height / 2) {
-                ty = -dotData.height / 2;
-            } else if (ty > (wrapperData.height - 4 - dotData.height / 2)) {
-                ty = (wrapperData.height - 4 - dotData.height / 2);
-            }
-            px = (tx + dotData.width / 2) / (wrapperData.width - 4);
-            py = (ty + dotData.height / 2) / (wrapperData.height - 4);
-            px = px.toFixed(3);
-            py = py.toFixed(3);
-            $dot.style.left = tx + 'px';
-            $dot.style.top = ty + 'px';
-            let color = computedColor(px, py, currentColor, 1);
-            m$('.J-value')[0].value = color;
-            m$('.J-demo')[0].style.backgroundColor = color;
-        }
-
-        function computedColor(x, y, targetColor, flag) {
-            let r = singleColorVal(x, y, targetColor.r),
-                g = singleColorVal(x, y, targetColor.g),
-                b = singleColorVal(x, y, targetColor.b);
-            let fr = toString16(r),
-                fg = toString16(g),
-                fb = toString16(b);
-            if (flag) {
-                return '#' + (fr.length < 2 ? '0' + fr : fr) + (fg.length < 2 ? '0' + fg : fg) + (fb.length < 2 ? '0' +
-                    fb : fb);
-            } else {
-                return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-            }
-        }
-
-        function singleColorVal(x, y, c) {
-            return parseInt((255 - (255 - c) * x) * (1 - y));
-        }
-
-        function conputedColorBar(percent) {
-            // #f00 - #ff0
-            let o = 0;
-            if (percent < 1 / 6) {
-                o = parseInt(percent * 6 * 255);
-                currentColor = {
-                    r: 255,
-                    g: o,
-                    b: 0
-                };
-                $wrapper.style.backgroundColor = 'rgb(255, ' + o + ', 0)';
-                // console.log('rgb(255, ' + o + ', 0)');
-                // m$('.J-value')[0].value = '#ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00';
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, ' + o + ', 0)';
-                // console.log('1');
-                // #ff0 - #0f0
-            } else if (percent < 1 / 3) {
-                o = parseInt((2 - percent * 6) * 255);
-                currentColor = {
-                    r: o,
-                    g: 255,
-                    b: 0
-                };
-                $wrapper.style.backgroundColor = 'rgb(' + o + ', 255, 0)';
-                // console.log('rgb(' + o + ', 255, 0)');
-                // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff00';
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 255, 0)';
-                // console.log('2');
-                // #0f0 - #0ff
-            } else if (percent < 1 / 2) {
-                o = parseInt((percent * 6 - 2) * 255);
-                currentColor = {
-                    r: 0,
-                    g: 255,
-                    b: o
-                };
-                $wrapper.style.backgroundColor = 'rgb(0, 255, ' + o + ')';
-                // m$('.J-value')[0].value = '#00ff' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, 255, ' + o + ')';
-                // console.log('rgb(0, 255, ' + o + ')');
-                // console.log('3');
-                // #0ff - #00f
-            } else if (percent < 2 / 3) {
-                o = parseInt((4 - percent * 6) * 255);
-                currentColor = {
-                    r: 0,
-                    g: o,
-                    b: 255
-                };
-                $wrapper.style.backgroundColor = 'rgb(0, ' + o + ', 255)';
-                // m$('.J-value')[0].value = '#00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + 'ff';
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(0, ' + o + ', 255)';
-                // console.log('rgb(0, ' + o + ', 255)');
-                // console.log('4');
-                // #00f - #f0f
-            } else if (percent < 5 / 6) {
-                o = parseInt((percent * 6 - 4) * 255);
-                currentColor = {
-                    r: o,
-                    g: 0,
-                    b: 255
-                };
-                $wrapper.style.backgroundColor = 'rgb(' + o + ', 0, 255)';
-                // m$('.J-value')[0].value = '#' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o)) + '00ff';
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(' + o + ', 0, 255)';
-                // console.log('rgb(' + o + ', 0, 255)');
-                // console.log('5');
-                // #f0f - #f00
-            } else {
-                o = parseInt((6 - percent * 6) * 255);
-                currentColor = {
-                    r: 255,
-                    g: 0,
-                    b: o
-                };
-                $wrapper.style.backgroundColor = 'rgb(255, 0, ' + o + ')';
-                // m$('.J-value')[0].value = '#ff00' + (toString16(o).length < 2 ? '0' + toString16(o) : toString16(o));
-                // m$('.J-demo')[0].style.backgroundColor = 'rgb(255, 0, ' + o + ')';
-                // console.log('rgb(255, 0, ' + o + ')');
-                // console.log('6');
-            }
-        }
-        // wrapper move begin
-        $wrapper.onmousedown = function (de) {
-            let x = de.clientX - wrapperData.left,
-                y = de.clientY - wrapperData.top;
-            moveDot(x, y);
-            document.onmousemove = null;
-            document.onmousemove = function (me) {
-                x = me.clientX - wrapperData.left;
-                y = me.clientY - wrapperData.top;
-                moveDot(x, y);
-            }
-        }
-        // colorBar move begin
-        $colorBarWrapper.onmousedown = function (de) {
-            let $dom = this;
-            let x = parseInt(de.clientX - $dom.offsetLeft);
-            let _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
-            _percent = _percent > 1 ? 1 : _percent;
-            $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) + 'px';
-            conputedColorBar(_percent);
-            // 每次点击时将dot重置为右上角
-            moveDot(wrapperData.width, 0);
-            // console.log(_percent);
-            document.onmousemove = function (me) {
-                x = parseInt(me.clientX - $dom.offsetLeft);
-                _percent = (x / ($dom.offsetWidth - 2)).toFixed(2);
-                _percent = _percent > 1 ? 1 : _percent < 0 ? 0 : _percent;
-                $pointer.style.left = parseInt(($dom.offsetWidth - 2) * _percent - $pointer.offsetWidth / 2) +
-                    'px';
-                conputedColorBar(_percent);
-                // 每次点击时将dot重置为右上角
-                moveDot(wrapperData.width, 0);
-            }
-        }
-        document.onmouseup = function () {
-            document.onmousemove = null;
-        }
-        m$('.J-demo')[0].addEventListener('click', function() {
-            console.log(this);
-            m$('.J-demo')[0].classList.value.split(' ').indexOf('max-show') == '-1' ? m$('.J-demo')[0].classList.add('max-show') : m$('.J-demo')[0].classList.remove('max-show');
-        });
     </script>
 </body>
 
