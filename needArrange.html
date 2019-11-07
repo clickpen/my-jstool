@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+	<style>
+		.map-container {
+			width: 1000px;
+			height: 800px;
+			margin:  0 auto 20px;
+		}
+	</style>
 </head>
+
 <body>
 	<div></div>
 	<textarea id="redText" cols="30" rows="10" placeholder="请输入你需要阅读的文字"></textarea>
@@ -13,7 +23,11 @@
 	<embed id="tts_embed_id" height="0" width="0" src="">
 	</audio> -->
 	<!-- http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text=语音测试1234 -->
-	<script src="./jquery-3.1.1.js"></script>
+	<div id="map" class="map-container"></div>
+	<script src="./jquery-3.1.1.min.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=Yhftv8wTlb2LgTvcjDp0pt5aqXcps3bS"></script>
+	<!--加载鼠标绘制工具-->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
 	<script>
 		// let config = {
 		// 	speed: 5,
@@ -60,7 +74,7 @@
 			}
 		}
 		read.init();
-		
+
 		// function max(num1 = 0, num2) {
 		// 	// 'use strict'
 		// 	// 在非'use strict'情况下arguments和形参保持一致
@@ -232,9 +246,9 @@
 		function findRing(header) {
 			let point1 = header.next;
 			let point2 = header.next;
-				point2 = point2 && point2.next;
-			while(point1 && point2) {
-				if(point1 == point2) {
+			point2 = point2 && point2.next;
+			while (point1 && point2) {
+				if (point1 == point2) {
 					return true;
 				}
 				point1 = point1.next;
@@ -244,29 +258,30 @@
 			return false;
 		}
 		// 链表只要能拿到头部的数据，就可以遍历出整条链表的数据
-		let headSheet = {value: 1, next: null};
-		function addSheet(sheet, val, index=Infinity) {
+		let headSheet = { value: 1, next: null };
+
+		function addSheet(sheet, val, index = Infinity) {
 			let currentAdd;
 			let NextNode = sheet;
 			let len = 1;
-			if(index < 1) {
+			if (index < 1) {
 				return;
 			}
 			while (NextNode.next) {
-				len ++;
+				len++;
 				NextNode = NextNode.next;
 			}
-			if(index >= len) {
-				NextNode.next = {value: val, next: null};
+			if (index >= len) {
+				NextNode.next = { value: val, next: null };
 				currentAdd = NextNode.next
 			} else {
 				let TempSheet;
 				let currentNode = headSheet;
-				for(let i = 1; i < index; i++) {
+				for (let i = 1; i < index; i++) {
 					currentNode = currentNode.next;
 				}
 				TempSheet = currentNode.next;
-				currentNode.next = {value: val, next: TempSheet};
+				currentNode.next = { value: val, next: TempSheet };
 				currentAdd = currentNode.next;
 			}
 			return currentAdd;
@@ -559,5 +574,66 @@
 		// delete a;
 		// console.log(a);
 	</script>
+	<script>
+		let oMap = new BMap.Map('map');
+		oMap.centerAndZoom(new BMap.Point(116.404, 39.915), 15);
+		oMap.enableScrollWheelZoom();
+		oMap.setMapStyleV2({
+			styleJson: [{
+				"featureType": "building",
+				"elementType": "geometry",
+				"stylers": {
+					"visibility": "off"
+				}
+			}, {
+				"featureType": "city",
+				"elementType": "labels.icon",
+				"stylers": {
+					"visibility": "off"
+				}
+			}, {
+				"featureType": "districtlabel",
+				"elementType": "labels.icon",
+				"stylers": {
+					"visibility": "off"
+				}
+			}]
+		});
+		var styleOptions = {
+			strokeColor:"red",		//边线颜色。
+			fillColor:"red",		//填充颜色。当参数为空时，圆形将没有填充效果。
+			strokeWeight: 3,		//边线的宽度，以像素为单位。
+			strokeOpacity: 0.8,		//边线透明度，取值范围0 - 1。
+			fillOpacity: 0.6,		//填充的透明度，取值范围0 - 1。
+			strokeStyle: 'solid'	//边线的样式，solid或dashed。
+		};
+		var drawingManager = new BMapLib.DrawingManager(oMap, {
+			isOpen: false,
+			enableDrawingTool: true,
+			drawingToolOptions: {
+				anchor: BMAP_ANCHOR_TOP_RIGHT,
+				offset: new BMap.Size(20, 10),
+				drawingTypes: [ //允许绘制的类型
+					BMAP_DRAWING_MARKER, // 绘制点
+					BMAP_DRAWING_CIRCLE, // 绘制圆
+					BMAP_DRAWING_POLYLINE, // 绘制折线
+					BMAP_DRAWING_POLYGON, // 绘制多边形
+					BMAP_DRAWING_RECTANGLE // 绘制矩形
+				],
+				drawingModes: [ //将要展示出来的类型
+					BMAP_DRAWING_MARKER, // 绘制点
+					BMAP_DRAWING_CIRCLE, // 绘制圆
+					BMAP_DRAWING_POLYLINE, // 绘制折线
+					BMAP_DRAWING_POLYGON, // 绘制多边形
+					BMAP_DRAWING_RECTANGLE // 绘制矩形
+				]
+			},
+			circleOptions: styleOptions, //圆的样式
+			polylineOptions: styleOptions, //线的样式
+			polygonOptions: styleOptions, //多边形的样式
+			rectangleOptions: styleOptions //矩形的样式
+		})
+	</script>
 </body>
+
 </html>
