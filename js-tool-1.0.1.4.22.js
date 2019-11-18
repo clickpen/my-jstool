@@ -18,6 +18,7 @@
 	// throttle()
 	// debounce()
 	// addEvent()
+	// cookieEvent
 
 //数组去重方法
 	Array.prototype.unique = function() {	//原型链上修改 //思路：对象内部的名称不能有重复
@@ -280,4 +281,25 @@
 		} else {
 			return window.getComputedStyle(obj, false)[attr];
 		}
+	}
+// cookie设置、获取、删除
+	function setCookie(name, value, path, expires, domain) {
+		if (!name || value === undefined) {
+			return;
+		}
+		expires = expires ? new Date(new Date().getTime() + expires).getGMTString() : '';
+        	document.cookie = name + '=' + escape(value) +
+			';path=' + (path || '/') +
+			';expires=' + expires +
+			';domain=' + (domain || '') + ';';
+	}
+	function getCookie(name, err) {
+		if (!name || !document.cookie.length) {
+			return;
+		}
+		let _n = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
+		return _n != null ? _n[2] : err;
+	}
+	function delCookie(name) {
+		setCookie(name, '', '', -1);
 	}
