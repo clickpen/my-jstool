@@ -287,7 +287,7 @@
 		if (!name || value === undefined) {
 			return;
 		}
-		expires = expires ? new Date(new Date().getTime() + expires).getGMTString() : '';
+		expires = expires ? new Date(new Date().getTime() + expires).toGMTString() : '';
         	document.cookie = name + '=' + escape(value) +
 			';path=' + (path || '/') +
 			';expires=' + expires +
