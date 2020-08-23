@@ -1,4 +1,4 @@
-Element.prototype.createTurnpage = function(json) {
+Element.prototype.createTurnPage = function(json) {
 	var str1 = "<ul class='imgUl'>";
 	var str2 = "<span class='btn btnR' title='下一张'>&gt</span><ul class='navUl'>"
 	for(var prop in json) {
