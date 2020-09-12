@@ -1,0 +1,4 @@
+yum install wget
+wget [node-url]
+xz -d [node-package.tar.xz]
+tar -xf [node-package.tar]

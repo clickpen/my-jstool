@@ -1,0 +1,13 @@
+开启cpu虚拟化  bios 找VT-X, Virtual Technology等
+推荐虚拟机内存分配
+proxy: 512
+service: 1024
+cache: 1024
+database:1024
+release:1024
+/usr (unix software resource)
+/var (环境变量)
+/etc (配置文件)
+/homt (用户相关)
+/opt (第三方软件目录，装软件就存到这个目录)
+...

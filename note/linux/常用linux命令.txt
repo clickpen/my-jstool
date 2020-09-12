@@ -1,0 +1,21 @@
+
+联网：默认是没有联网的，修改ifcfg-ens33文件
+       vi /etc/sysconfig/network-scripts/ifcfg-ens33
+       将ONBOOT=no修改为ONBOOT=yes
+关闭防火墙：
+文件权限
+第一个字符 D：路径；-：文件；
+后面分三组：当前用户权限，当前组权限；其他组权限；
+每组三个字符 R：读（100）；W：写（010）；X：执行（001）；
+例：创建文件夹时的权限添加 mkdir -m 777 test
+      修改文件权限 chomd 777 test
+vi命令：
+      hjkl:←↓↑→
+      G:末行；gg:首行；
+      ctrl + f:下页；ctrl + b:上页；ctrl + d/u:上/下半页；
+      /[search]:向下查找；?[search]：向上查找
+tail [params] [fileName]: 展示当前文件的最后10行
+      params: -f 监听文件，一旦文件有变化就动态进行更新
+                   -20f 监听20行文件
+cat 展示文件的全部内容，通常配合gerp管道搜索 例如cat [filename] | grep "[keyWord]"
+rmdir [foldername]/:删除当前的空文件目录foldername
