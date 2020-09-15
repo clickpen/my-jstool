@@ -1,0 +1,29 @@
+show databases;
+use school;
+show tables;
+desc students;
+# 设置数据库字符格式为utf8，否则默认不支持中文
+# alter database school character set 'utf8';
+# 设置表字符格式
+# alter table students default character set 'utf8';
+# alter table students convert to character set 'utf8';
+# 增
+insert into students (`stu_num`, `name`, `age`, `class`) VALUE
+    (4, '阿防', 19, 1),
+    (5, '阿牛', 18, 2),
+    (6, '阿猪', 17, 1),
+    (7, '阿熊', 17, 2);
+# 改
+update students set age = 20 where name = '阿熊';
+# 查
+select * from students; # (数据量大)禁用
+select id, stu_num as '学号', name, class from students;
+select id, stu_num as '学号', name from students where class = 1;
+select id, stu_num as '学号', name from students limit 0, 5;
+select id, stu_num as '学号', name from students order by id desc limit 0, 5;
+select count(1) from students;
+select sum(age) from students;
+select avg(age) from students;
+select class, avg(age) from students group by class;
+# 删
+delete from students where id = 7;
